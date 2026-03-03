@@ -1,70 +1,74 @@
 import streamlit as st
 
-st.set_page_config(page_title="Le Jeu des Goûts", page_icon="📸")
+st.set_page_config(page_title="Le Test des Goûts", page_icon="📸")
 
-# On utilise un service de redimensionnement/proxy (wsrv.nl) pour forcer l'affichage
-def get_proxy_img(url):
-    return f"https://wsrv.nl/?url={url}&w=400&output=jpg"
-
-# Liste de 20 célébrités avec liens directs simplifiés
+# Base de données avec des liens Imgur (beaucoup plus stables pour l'affichage direct)
 celebs = [
-    # CAUCASIENNES
-    {"nom": "Margot Robbie", "url": "https://image.tmdb.org/t/p/main/cv1S3uS8X9fbaC99pFuSsts3pS3.jpg"},
-    {"nom": "Scarlett Johansson", "url": "https://image.tmdb.org/t/p/main/69Sns9oetA96Ym966T7tBqG8f6S.jpg"},
-    {"nom": "Ana de Armas", "url": "https://image.tmdb.org/t/p/main/3vxv9uGv9D3Ssa6mCqA686FnYdf.jpg"},
-    {"nom": "Jenna Ortega", "url": "https://image.tmdb.org/t/p/main/mB9Y8pG63p4pS8I9mB1p9Y8pG63.jpg"},
-    {"nom": "Sydney Sweeney", "url": "https://image.tmdb.org/t/p/main/9979t699p6S6mCqA686FnYdf.jpg"},
-    {"nom": "Emma Watson", "url": "https://image.tmdb.org/t/p/main/hY1S9oetA96Ym966T7tBqG8f6S.jpg"},
-    {"nom": "Jennifer Lawrence", "url": "https://image.tmdb.org/t/p/main/vY1S9oetA96Ym966T7tBqG8f6S.jpg"},
-    {"nom": "Kristen Stewart", "url": "https://image.tmdb.org/t/p/main/pY1S9oetA96Ym966T7tBqG8f6S.jpg"},
-    {"nom": "Florence Pugh", "url": "https://image.tmdb.org/t/p/main/tY1S9oetA96Ym966T7tBqG8f6S.jpg"},
-    {"nom": "Taylor Swift", "url": "https://image.tmdb.org/t/p/main/oY1S9oetA96Ym966T7tBqG8f6S.jpg"},
-    {"nom": "Gal Gadot", "url": "https://image.tmdb.org/t/p/main/fZ1S9oetA96Ym966T7tBqG8f6S.jpg"},
-    {"nom": "Elizabeth Olsen", "url": "https://image.tmdb.org/t/p/main/wY1S9oetA96Ym966T7tBqG8f6S.jpg"},
-    {"nom": "Lily-Rose Depp", "url": "https://image.tmdb.org/t/p/main/2O9p78STuR7Wn8S.jpg"},
-    {"nom": "Elle Fanning", "url": "https://image.tmdb.org/t/p/main/f60fR78STuR7Wn8S.jpg"},
-    {"nom": "Victoria Pedretti", "url": "https://image.tmdb.org/t/p/main/mB1p9Y8pG63p4pS8I9mB1p9.jpg"},
+    # --- CAUCASIENNES ---
+    {"nom": "Margot Robbie", "url": "https://i.imgur.com/Bf79X76.jpg"},
+    {"nom": "Scarlett Johansson", "url": "https://i.imgur.com/f0WfNId.jpg"},
+    {"nom": "Ana de Armas", "url": "https://i.imgur.com/vH9v5m6.jpg"},
+    {"nom": "Zendaya", "url": "https://i.imgur.com/v8tT9oX.jpg"},
+    {"nom": "Jenna Ortega", "url": "https://i.imgur.com/9C0D39B.jpg"},
+    {"nom": "Sydney Sweeney", "url": "https://i.imgur.com/7YfL7kC.jpg"},
+    {"nom": "Emma Watson", "url": "https://i.imgur.com/fMvC3Uu.jpg"},
+    {"nom": "Jennifer Lawrence", "url": "https://i.imgur.com/Xp7A8O3.jpg"},
+    {"nom": "Kristen Stewart", "url": "https://i.imgur.com/mO2XpYp.jpg"},
+    {"nom": "Florence Pugh", "url": "https://i.imgur.com/9796Y8V.jpg"},
+    {"nom": "Taylor Swift", "url": "https://i.imgur.com/6S6MshJ.jpg"},
+    {"nom": "Gal Gadot", "url": "https://i.imgur.com/6L0X66y.jpg"},
+    {"nom": "Elizabeth Olsen", "url": "https://i.imgur.com/B9qGf9u.jpg"},
+    {"nom": "Lily-Rose Depp", "url": "https://i.imgur.com/fVzXm9v.jpg"},
+    {"nom": "Elle Fanning", "url": "https://i.imgur.com/hY6W9O9.jpg"},
 
-    # ASIATIQUES
-    {"nom": "Jisoo", "url": "https://image.tmdb.org/t/p/main/aY1S9oetA96Ym966T7tBqG8f6S.jpg"},
-    {"nom": "Hoyeon Jung", "url": "https://image.tmdb.org/t/p/main/bY1S9oetA96Ym966T7tBqG8f6S.jpg"},
-    {"nom": "Dilraba Dilmurat", "url": "https://image.tmdb.org/t/p/main/cY1S9oetA96Ym966T7tBqG8f6S.jpg"},
-    {"nom": "Anna Sawai", "url": "https://image.tmdb.org/t/p/main/dY1S9oetA96Ym966T7tBqG8f6S.jpg"},
-    {"nom": "Gemma Chan", "url": "https://image.tmdb.org/t/p/main/eY1S9oetA96Ym966T7tBqG8f6S.jpg"},
+    # --- ASIATIQUES ---
+    {"nom": "Jisoo", "url": "https://i.imgur.com/mE0q9tB.jpg"},
+    {"nom": "Hoyeon Jung", "url": "https://i.imgur.com/D8mU2C7.jpg"},
+    {"nom": "Dilraba Dilmurat", "url": "https://i.imgur.com/pYv6S9m.jpg"},
+    {"nom": "Anna Sawai", "url": "https://i.imgur.com/fW9Z9D9.jpg"},
+    {"nom": "Gemma Chan", "url": "https://i.imgur.com/8Yv6Z9S.jpg"},
 ]
 
 st.title("🎯 Le Jeu des Goûts")
+st.markdown("### Devine si cette personne plaît à ton ami !")
 
-tab1, tab2 = st.tabs(["🔒 MODE AMI", "🎮 MODE JOUEUR"])
+tab1, tab2 = st.tabs(["🔒 MODE AMI (Réglages)", "🎮 MODE JOUEUR (Le Quiz)"])
 
 with tab1:
-    st.header("Préférences de l'Ami")
+    st.header("Section réservée à l'ami")
+    st.write("Coche 'Oui' ou 'Non' pour chaque photo.")
     choices = {}
     for person in celebs:
         st.subheader(person['nom'])
-        # On force l'affichage via le proxy wsrv.nl
-        st.image(get_proxy_img(person['url']), width=250)
-        res = st.radio(f"Elle te plaît ?", ["Non", "Oui"], key=f"ami_{person['nom']}")
+        st.image(person['url'], width=300)
+        res = st.radio(f"Est-ce qu'elle te plaît ?", ["Non", "Oui"], key=f"ami_{person['nom']}")
         choices[person['nom']] = res
-        st.divider()
+        st.write("---")
     
-    if st.button("Enregistrer les choix"):
+    if st.button("Valider mes goûts"):
         st.session_state['votes_ami'] = choices
-        st.success("Choix enregistrés !")
+        st.success("C'est enregistré ! Passe le téléphone au suivant.")
 
 with tab2:
     if 'votes_ami' not in st.session_state:
-        st.warning("L'ami doit voter en premier !")
+        st.warning("L'ami doit d'abord enregistrer ses choix dans l'onglet 1.")
     else:
-        st.header("Devine !")
+        st.header("Le test de connaissance !")
         score = 0
         for person in celebs:
-            st.image(get_proxy_img(person['url']), width=250)
-            dev = st.radio(f"Est-ce que ça lui plaît ?", ["Non", "Oui"], key=f"jeu_{person['nom']}")
+            st.image(person['url'], width=300)
+            dev = st.radio(f"D'après toi, est-ce qu'elle plaît à ton ami ?", ["Non", "Oui"], key=f"jeu_{person['nom']}")
             if dev == st.session_state['votes_ami'][person['nom']]:
                 score += 1
-            st.divider()
+            st.write("---")
         
-        if st.button("Score Final"):
+        if st.button("Afficher mon score"):
             st.balloons()
-            st.markdown(f"### Résultat : {score} / {len(celebs)}")
+            total = len(celebs)
+            st.metric("Résultat final", f"{score} / {total}")
+            if score == total:
+                st.success("L'âme sœur ! Tu connais tout !")
+            elif score > total/2:
+                st.info("Pas mal, tu as l'essentiel.")
+            else:
+                st.error("Tu devrais peut-être plus lui parler...")
